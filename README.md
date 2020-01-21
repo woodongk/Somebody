@@ -1,7 +1,8 @@
 # AI_Burning
 
 https://programmers.co.kr/learn/challenges
-우선 순위 순으로 나열 
+
+**우선 순위 순으로 나열**
 
 - 완전탐색
 - 깊이/너비 우선탐색 (DFS / BFS)
