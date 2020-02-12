@@ -51,7 +51,6 @@ def movie_divide(vname): #영상 -> 사진 분할. 매개변수로는 영상 제
         success,image = vidcap.read()
         if not success:
             break
-        print ('Read a new frame: ', success)
         cv2.imwrite("./static/uploads/images/frame%d.jpg" % count, image)
         count += 1
     vidcap.release()
@@ -60,6 +59,7 @@ def movie_divide(vname): #영상 -> 사진 분할. 매개변수로는 영상 제
 
 #API 요청해 json 파일 받기
 
+"""
 def get_json(vname):
     count=1
     dir = os.path.abspath("./static/uploads/images")
@@ -82,13 +82,12 @@ def get_json(vname):
             strTodict = json.loads(response.text)
             with open("./static/uploads/json/test%d.json" % count,'w', encoding='utf-8') as make_file:
                 json.dump(strTodict , make_file, indent="\t")
-            print(count, "개 완료")
             count+=1
     else:
         print("Error Code:" + rescode)
 
     return change_cal(vname)
-
+"""
 """
 json_data['predictions'][0]['0']['x'] --> dict key = score, x, y
 구성
@@ -172,18 +171,16 @@ def make_music(xdif, ydif, vname):
         if diff>0:
             if num==len(sound)-1:
                 music += sound[num]
-            elif num == 0:
-                music += sound[num]
+                num = random.randint(0, len(sound)-1)
             else :
                 num = random.randint(num, len(sound)-1)
                 music += sound[num]
         else:
-            if num==len(sound)-1:
+            if num==0:
                 music += sound[num]
-            elif num == 0:
-                music += sound[num]
+                num = random.randint(0, len(sound)-1)
             else :
-                num = random.randint(num, len(sound)-1)
+                num = random.randint(0, num)
                 music += sound[num]
     
     music.export("./static/uploads/music.mp3", format="mp3")
@@ -203,7 +200,6 @@ def make_mv(vname):
         'ffmpeg -i %s -i %s -c:v copy -c:a aac -strict experimental %s' % (mdir, rmfdir, finaldir),
         shell=True
     )
-    print(rmfdir)
     return render_template('app.html', up_file="final.mp4")
     
 
