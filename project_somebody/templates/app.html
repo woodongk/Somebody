@@ -47,7 +47,13 @@
                   </div>
                   <div class="padding-t">
                       <h3 class="card-title padding-l">평가</h3>
-                      <p class="card-title padding-l">파워풀한 댄서!</p>
+                      <p class="card-body padding-l">파워풀한 댄서!</p>
+                  </div>
+                  <div class="padding-t">
+                      <h3 class="card-title padding-l">활동적인 신체부위</h3>
+                      {% for i in soundlog %}
+                          <h4 class="card-body padding-l" style="margin-bottom: 0.5em">{{ i[0] + " : %d" % i[1] }}</h4>
+                      {% endfor %}
                   </div>
               </div>
 
