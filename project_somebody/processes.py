@@ -161,11 +161,14 @@ def change_cal(vname):
     diff.append(rfoot_diff)
     diff.append(lfoot_diff)
 
+    for file in os.scandir(jsondir):
+        os.remove(file.path)
+
   
 
     return make_music(diff, vname)
 
-
+"""
 # 변화량에 따른 사운드 제작
 def make_music(diff, vname):
     print("METHOD : make_music")
@@ -191,14 +194,9 @@ def make_music(diff, vname):
     sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
     base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
 
-    #for i in sound:
-    #    i = i[:500]
+    for i in range(len(sound)):
+        sound[i]=sound[i][:500]
 
-    sound[0]=sound[0][:500]
-    sound[1]=sound[1][:500]
-    sound[2]=sound[2][:500]
-    sound[3]=sound[3][:500]
-    sound[4]=sound[4][:500]
     base_music=base_music[:500]
 
     base=base_music
@@ -217,7 +215,148 @@ def make_music(diff, vname):
     music.export("./static/uploads/music.mp3", format="mp3")
     
     return make_mv(vname)
+"""
 
+def make_music(diff, vname):
+    print("METHOD : make_music")
+    
+    final_diff=list()
+    sound = list()
+    tmp_list=[0,1,2,3,4]
+
+    all_avg=0
+    tmp_avg=0
+    avg=list()
+
+    
+    for i in range(len(diff[0])):
+        for j in range(len(diff)):
+            tmp_avg+=diff[j][i]
+        avg.append(tmp_avg)
+
+    for i in range(len(avg)):
+        all_avg+=avg[i]
+
+    all_avg/=len(avg)
+        
+    for k in range(len(diff[0])):
+        for i in range(len(tmp_list)-1):
+            for j in range(len(tmp_list)-i-1):
+                if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
+                    tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
+        final_diff.append(tmp_list)
+        tmp_list=[0,1,2,3,4]
+
+    sound = list()
+
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/tom H.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/kick.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
+    base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
+
+    for i in range(len(sound)):
+        sound[i] = sound[i][:500]
+
+
+    base_music=base_music[:500] #base
+
+    base=base_music
+    music = sound[1].overlay(sound[2])+sound[3].overlay(sound[4])
+
+    for i in range(len(final_diff)):
+        base+=base_music
+
+    for i in range(len(final_diff)):
+        music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
+        music += sound[final_diff[i][2]].overlay(sound[final_diff[i][3]])
+
+    mel_dir = os.path.abspath("./static/uploads/music_source/blues_scale")
+    melody_l = os.listdir(mel_dir)
+    melody_lst=list()
+
+    for i in range(len(melody_l)):
+        melody_lst.append(os.path.join(mel_dir, melody_l[i]))
+
+    melody=list()
+
+    for i in range(len(melody_lst)):
+        melody.append(AudioSegment.from_mp3(melody_lst[i]))
+
+
+    for i in range(len(melody)): #멜로디는 0.5초
+        melody[i]=melody[i][:500]
+    
+    mel = melody[6]
+    cur = 6
+    choice=True
+
+    print("avg",avg)
+    print("all_avg",all_avg)
+
+    for i in range(len(avg)):
+        if(choice == True):
+            if(avg[i]<all_avg):
+                cur = random.randint(0, cur)
+                if(cur==0):
+                    cur = random.randint(0, cur+6)
+                mel += melody[cur]
+                cur = random.randint(0, cur)
+                if(cur==0):
+                    cur = random.randint(0, cur+6)
+                mel += melody[cur]
+            else:
+                cur = random.randint(cur, len(melody)-1)
+                if(cur==len(melody)-1):
+                    cur = random.randint(cur-6, len(melody)-1)
+                mel +=melody[cur]
+                cur = random.randint(cur, len(melody)-1)
+                if(cur==len(melody)-1):
+                    cur = random.randint(cur-6, len(melody)-1)
+                mel +=melody[cur]
+
+        else:
+            if(avg[i]<all_avg):
+                cur = random.randint(0, cur-1)
+                if(cur==0):
+                    cur = random.randint(0, cur+6)
+                mel += melody[cur][:330]
+                cur = random.randint(0, cur-1)
+                if(cur==0):
+                    cur = random.randint(0, cur+6)
+                mel += melody[cur][:330]
+                cur = random.randint(0, cur-1)
+                if(cur==0):
+                    cur = random.randint(0, cur+6)
+                mel += melody[cur][:340]
+            else:
+                cur = random.randint(cur+1, len(melody)-1)
+                if(cur==len(melody)-1):
+                    cur = random.randint(cur-6, len(melody)-1)
+                mel +=melody[cur][:330]
+                cur = random.randint(cur+1, len(melody)-1)
+                if(cur==len(melody)-1):
+                    cur = random.randint(cur-6, len(melody)-1)
+                mel +=melody[cur][:330]
+                cur = random.randint(cur+1, len(melody)-1)
+                if(cur==len(melody)-1):
+                    cur = random.randint(cur-6, len(melody)-1)
+                mel +=melody[cur][:340]
+            
+        choice=random.choice([True, False])
+
+
+
+        
+
+
+    music= music.overlay(base)
+    music = music.overlay(mel)
+
+    music.export("./static/uploads/music.mp3", format="mp3")
+    
+    return make_mv(vname)
 
 # 원본 동영상과 제작한 사운드 결합
 def make_mv(vname):
