@@ -1,6 +1,6 @@
 from flask import render_template
 from pydub import AudioSegment
-import os, cv2, requests, json, random, subprocess
+import os, cv2, requests, json, random, subprocess,shutil
 
 
 # 영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
@@ -8,20 +8,35 @@ def movie_divide(vname):
     print("METHOD : movie_divide")
     dir = os.path.abspath("./static/uploads")
     fdir = os.path.join(dir, vname)
-    count = 0
-    vidcap = cv2.VideoCapture(fdir)
-    while count < 10:
-        print("frame... %d" % count)
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*800)) # 1초에 한장 캡쳐
-        success, image = vidcap.read()
-        if not success:
-            break
-        cv2.imwrite("./static/uploads/images/frame%d.jpg" % count, image)
-        count += 1
-    vidcap.release()
-    return get_json(vname)
-    # return change_cal(vname)
 
+    vidcap = cv2.VideoCapture(fdir)
+    count = 0
+    n = 1 # 1초에 1번, n= 2 : 1초에 2번
+
+    # find frame rate of a video
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
+    ## fps 반올림
+    print("video 프레임 rate :", round(fps))
+    s_vidfps = round(fps) / n
+
+    while (vidcap.isOpened()):
+        # Capture frame-by-frame
+        success, image = vidcap.read()
+        # count 값 업데이트 기준으로 frame 업데이트됨
+        if success == True:
+            #print('Read %d frame: ' % count, success)
+            if count % s_vidfps == 0:
+                # image 폴더 있다면 삭제
+                if os.path.exists("./static/uploads/images") and os.path.isdir("./static/uploads/images"):
+                    shutil.rmtree("./static/uploads/images")
+                # image 폴더 생성
+                os.mkdir("./static/uploads/images")
+                cv2.imwrite("./static/uploads/images/frame%d.jpg".format(int(count / s_vidfps)),image)  # save frame as JPEG file
+            count += 1
+        else:
+            break
+
+    return get_json(vname)
 
 # API 요청해 json 파일 받기
 def get_json(vname):
