@@ -5,6 +5,7 @@ from processes import movie_divide
 
 app = Flask(__name__)
 
+
 ALLOWED_EXTENSIONS = set(['avi', 'mp4', 'wmv'])
 
 

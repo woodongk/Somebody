@@ -12,7 +12,7 @@ def movie_divide(vname):
     vidcap = cv2.VideoCapture(fdir)
     while count < 10:
         print("frame... %d" % count)
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*1000)) # 1초에 한장 캡쳐
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*800)) # 1초에 한장 캡쳐
         success, image = vidcap.read()
         if not success:
             break
@@ -134,7 +134,7 @@ def make_music(xdif, ydif, vname):
         sound.append(AudioSegment.from_file(i))
 
     for i in sound:
-        i = sound[:1000]  # mp3파일 1초로 만들기
+        i = sound[:800]  # mp3파일 1초로 만들기
 
     music = sound[0]
     num = 0
