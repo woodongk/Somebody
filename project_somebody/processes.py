@@ -42,6 +42,13 @@ def movie_divide(vname,n):
 # API 요청해 json 파일 받기
 def get_json(vname):
     print("METHOD : get_json")
+
+    json_dir = "./static/uploads/json"
+    if os.path.exists(json_dir) and os.path.isdir(json_dir):
+        shutil.rmtree(json_dir)
+    # image 폴더 생성
+    os.mkdir(json_dir)
+
     count = 1
     dir = os.path.abspath("./static/uploads/images")
     fname = sorted(os.listdir(dir))
