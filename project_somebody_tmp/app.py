@@ -33,7 +33,7 @@ def upload_file():
            flash('No selected file')
            return redirect(url_for('up'))
        if allow==True:
-           f.save("./static/uploads/"+secure_filename(f.filename))
+           f.save("./static/uploads/raw_video/"+secure_filename(f.filename))
            return movie_divide(secure_filename(f.filename))
            #return render_template('app.html', up_file=f.filename)
        if allow==False: #파일 형식이 허용되지 않는 파일일 때
@@ -42,19 +42,33 @@ def upload_file():
 
 
 def movie_divide(vname): #영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
-    dir = os.path.abspath("./static/uploads")
-    fdir = os.path.join(dir, vname)
+
+    video_dir = os.path.abspath("./static/uploads/raw_video")
+
+    # mp4 파일 가져오기
+    for f in os.listdir(video_dir):
+        if f.split('.')[-1] in ALLOWED_EXTENSIONS:
+            fdir = f
+
+    fdir = os.path.join(video_dir,fdir)
+
     count = 0
     vidcap = cv2.VideoCapture(fdir)
+
     while True:
         vidcap.set(cv2.CAP_PROP_POS_MSEC,(count*1000)) #1초에 한장 캡쳐
         success,image = vidcap.read()
         if not success:
             break
-        cv2.imwrite("./static/uploads/images/frame%d.jpg" % count, image)
+        if os.path.isdir("./static/uploads/images"):
+            cv2.imwrite("./static/uploads/images/frame%d.jpg" % count, image)
+        else:
+            os.mkdir("./static/uploads/images")
+            cv2.imwrite("./static/uploads/images/frame%d.jpg" % count, image)
+
         count += 1
     vidcap.release()
-    #return get_json(fname)
+
     return change_cal(vname)
 
 #API 요청해 json 파일 받기
@@ -204,4 +218,4 @@ def make_mv(vname):
     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()
