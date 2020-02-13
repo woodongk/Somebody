@@ -32,7 +32,7 @@ def movie_divide(vname,n):
         # count 값 업데이트 기준으로 frame 업데이트됨
         if success == True:
             if count % s_vidfps == 0:
-                cv2.imwrite(os.path.join(img_dir,"frame{:d}.jpg".format(int(count / s_vidfps))),image)  # save frame as JPEG file
+                cv2.imwrite(os.path.join(img_dir,"frame{:02d}.jpg".format(int(count / s_vidfps))),image)  # save frame as JPEG file
             count += 1
         else:
             break
