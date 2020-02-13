@@ -185,10 +185,10 @@ def make_mv(vname):
     finaldir = os.path.join(dir, "final.mp4")
     mdir = os.path.join(dir, "music.mp3")
     subprocess.call(  # 비디오 내 오디오 삭제
-        'ffmpeg -i %s -c copy -an %s' % (fdir, rmfdir),
+        'ffmpeg -y -i %s -c copy -an %s' % (fdir, rmfdir),
         shell=True)
     subprocess.call(  # 비디오와 새로운 오디오 합성
-        'ffmpeg -i %s -i %s -c:v copy -c:a aac -strict experimental %s' % (mdir, rmfdir, finaldir),
+        'ffmpeg -y -i %s -i %s -c:v copy -c:a aac -strict experimental %s' % (mdir, rmfdir, finaldir),
         shell=True
     )
     return render_template('app.html', up_file="final.mp4")
