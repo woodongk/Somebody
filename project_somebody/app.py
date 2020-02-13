@@ -33,7 +33,7 @@ def upload_file():
             return redirect(url_for('up'))
         if allow == True:
             f.save("./static/uploads/" + secure_filename(f.filename))
-            return movie_divide(secure_filename(f.filename))
+            return movie_divide(secure_filename(f.filename),1)
             # return render_template('app.html', up_file=f.filename)
         if allow == False:  # 파일 형식이 허용되지 않는 파일일 때
             flash('type error')

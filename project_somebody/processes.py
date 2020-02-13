@@ -4,14 +4,14 @@ import os, cv2, requests, json, random, subprocess,shutil
 
 
 # 영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
-def movie_divide(vname):
+# 1초에 1번, n= 2 : 1초에 2번캡처
+def movie_divide(vname,n):
     print("METHOD : movie_divide")
     dir = os.path.abspath("./static/uploads")
     fdir = os.path.join(dir, vname)
 
     vidcap = cv2.VideoCapture(fdir)
     count = 0
-    n = 1 # 1초에 1번, n= 2 : 1초에 2번
 
     # find frame rate of a video
     fps = vidcap.get(cv2.CAP_PROP_FPS)
