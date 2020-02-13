@@ -1,6 +1,6 @@
 from flask import render_template
 from pydub import AudioSegment
-import os, cv2, requests, json, random, subprocess,shutil
+import os, cv2, requests, json, random, subprocess, shutil
 import numpy as np
 from collections import Counter
 
@@ -43,6 +43,13 @@ def movie_divide(vname,n):
 # API 요청해 json 파일 받기
 def get_json(vname):
     print("METHOD : get_json")
+
+    json_dir = "./static/uploads/json"
+    if os.path.exists(json_dir) and os.path.isdir(json_dir):
+        shutil.rmtree(json_dir)
+    # image 폴더 생성
+    os.mkdir(json_dir)
+
     count = 1
     dir = os.path.abspath("./static/uploads/images")
     fname = sorted(os.listdir(dir))
@@ -284,10 +291,10 @@ def make_music(diff, vname):
 
     music.export("./static/uploads/music.mp3", format="mp3")
     
-    return make_mv(vname)
+    return make_mv(vname, diff)
 
 # 원본 동영상과 제작한 사운드 결합
-def make_mv(vname):
+def make_mv(vname, diff):
     print("METHOD : make_mv")
     dir = os.path.abspath("./static/uploads")
     fdir = os.path.join(dir, vname)
@@ -301,7 +308,7 @@ def make_mv(vname):
         'ffmpeg -y -i %s -i %s -c:v copy -c:a aac -strict experimental %s' % (mdir, rmfdir, finaldir),
         shell=True
     )
-    return render_template('app.html', up_file="final.mp4")
+    return render_template('app.html', up_file="final.mp4", soundlog=active_body_stat(diff, 0.1))
 
 # change_cal 통해 만들어진 변화량 통해 사운드 로그 생
 def active_body_stat(diff, threshold):
