@@ -45,12 +45,12 @@ def movie_divide(vname): #영상 -> 사진 분할. 매개변수로는 영상 제
 
     video_dir = os.path.abspath("./static/uploads/raw_video")
 
-    # mp4 파일 가져오기
-    for f in os.listdir(video_dir):
-        if f.split('.')[-1] in ALLOWED_EXTENSIONS:
-            fdir = f
+    # # 비디오 파일 가져오기
+    # for f in os.listdir(video_dir):
+    #     if f.split('.')[-1] in ALLOWED_EXTENSIONS:
+    #         fdir = f
 
-    fdir = os.path.join(video_dir,fdir)
+    fdir = os.path.join(video_dir,vname)
 
     count = 0
     vidcap = cv2.VideoCapture(fdir)
