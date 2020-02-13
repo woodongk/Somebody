@@ -1,6 +1,7 @@
 from flask import render_template
 from pydub import AudioSegment
 import os, cv2, requests, json, random, subprocess,shutil
+import numpy as np
 
 # 영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
 # 1초에 1번, n= 2 : 1초에 2번캡처
@@ -43,7 +44,7 @@ def get_json(vname):
     print("METHOD : get_json")
     count = 1
     dir = os.path.abspath("./static/uploads/images")
-    fname = os.listdir(dir)
+    fname = sorted(os.listdir(dir))
     fdir = list()
 
     client_id = "ikkq6wbgvq" # API client 아이디랑 secret key
@@ -162,8 +163,6 @@ def change_cal(vname):
 
     for file in os.scandir(jsondir):
         os.remove(file.path)
-
-  
 
     return make_music(diff, vname)
 
@@ -431,3 +430,23 @@ def make_mv(vname):
         shell=True
     )
     return render_template('app.html', up_file="final.mp4")
+
+# change_cal 통해 만들어진 변화량 통해 사운드 로그 생
+def active_body_stat(diff, threshold):
+    active_body_lst = []
+    cnt = 0
+
+    body_dict = {
+        0: 'head',
+        4: 'rhand',
+        7: 'lhand',
+        10: 'rfoot',
+        13: 'lfoot'
+    }
+
+    for i, body in zip(range(5), body_dict.values()):
+        body_cnt_by_thres = len(np.where(np.array(diff[i]) > threshold)[0])
+        active_body_lst.append((body, body_cnt_by_thres))
+    print(active_body_lst)
+
+    return active_body_lst
