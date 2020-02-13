@@ -122,58 +122,100 @@ def change_cal(vname):
         with open(i, 'r') as f:
             data.append(json.load(f))
 
-    rhand_x_diff = list()
-    rhand_y_diff = list()
+    head_diff = list()
+    rhand_diff = list()
+    lhand_diff = list()
+    rfoot_diff = list()
+    lfoot_diff = list()
+    diff = list()
 
     for i in range(len(data) - 1):
         try:
-            rhand_x_diff.append(data[i + 1]['predictions'][0]['4']['x'] - data[i]['predictions'][0]['4']['x'])
-            rhand_y_diff.append(data[i + 1]['predictions'][0]['4']['y'] - data[i]['predictions'][0]['4']['y'])
+            head_diff.append(abs(data[i + 1]['predictions'][0]['0']['x'] - data[i]['predictions'][0]['0']['x']) + abs(data[i + 1]['predictions'][0]['0']['y'] - data[i]['predictions'][0]['0']['y']))
         except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            rhand_x_diff.append(0)
-            rhand_y_diff.append(0)
+            head_diff.append(0)
+    for i in range(len(data) - 1):
+        try:
+            rhand_diff.append(abs(data[i + 1]['predictions'][0]['4']['x'] - data[i]['predictions'][0]['4']['x']) + abs(data[i + 1]['predictions'][0]['4']['y'] - data[i]['predictions'][0]['4']['y']))
+        except KeyError:  # 한 쪽에 인식이 안 된 경우.
+            rhand_diff.append(0)
+    for i in range(len(data) - 1):
+        try:
+            lhand_diff.append(abs(data[i + 1]['predictions'][0]['7']['x'] - data[i]['predictions'][0]['7']['x']) + abs(data[i + 1]['predictions'][0]['7']['y'] - data[i]['predictions'][0]['7']['y']))
+        except KeyError:  # 한 쪽에 인식이 안 된 경우.
+            lhand_diff.append(0)
+    for i in range(len(data) - 1):
+        try:
+            rfoot_diff.append(abs(data[i + 1]['predictions'][0]['10']['x'] - data[i]['predictions'][0]['10']['x']) + abs(data[i + 1]['predictions'][0]['10']['y'] - data[i]['predictions'][0]['10']['y']))
+        except KeyError:  # 한 쪽에 인식이 안 된 경우.
+            rfoot_diff.append(0)
+    for i in range(len(data) - 1):
+        try:
+            lfoot_diff.append(abs(data[i + 1]['predictions'][0]['13']['x'] - data[i]['predictions'][0]['13']['x']) + abs(data[i + 1]['predictions'][0]['13']['y'] - data[i]['predictions'][0]['13']['y']))
+        except KeyError:  # 한 쪽에 인식이 안 된 경우.
+            lfoot_diff.append(0)
+    
+    diff.append(head_diff)
+    diff.append(rhand_diff)
+    diff.append(lhand_diff)
+    diff.append(rfoot_diff)
+    diff.append(lfoot_diff)
 
-    return make_music(rhand_x_diff, rhand_y_diff, vname)
+  
+
+    return make_music(diff, vname)
 
 
 # 변화량에 따른 사운드 제작
-def make_music(xdif, ydif, vname):
+def make_music(diff, vname):
     print("METHOD : make_music")
-    musicdir = os.path.abspath("./static/uploads/music")
-    music_name = os.listdir(musicdir)
-    mdir = list()
-    for i in range(len(music_name)):
-        mdir.append(os.path.join(musicdir, music_name[i]))
+    
+    final_diff=list()
+    sound = list()
+    tmp_list=[0,1,2,3,4]
+
+    for k in range(len(diff[0])):
+        for i in range(len(tmp_list)-1):
+            for j in range(len(tmp_list)-i-1):
+                if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
+                    tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
+        final_diff.append(tmp_list)
+        tmp_list=[0,1,2,3,4]
 
     sound = list()
-    for i in mdir:
-        sound.append(AudioSegment.from_file(i))
 
-    for i in sound:
-        i = sound[:800]  # mp3파일 1초로 만들기
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/tom H.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/kick.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
+    base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
 
-    music = sound[0]
-    num = 0
+    #for i in sound:
+    #    i = i[:500]
 
-    for i in range(len(xdif) - 1):
-        diff = (abs(xdif[i]) + abs(ydif[i])) - (abs(xdif[i + 1]) + abs(ydif[i + 1]))
-        if diff > 0:
-            if num == len(sound) - 1:
-                music += sound[num]
-                num = random.randint(0, len(sound) - 1)
-            else:
-                num = random.randint(num, len(sound) - 1)
-                music += sound[num]
-        else:
-            if num == 0:
-                music += sound[num]
-                num = random.randint(0, len(sound) - 1)
-            else:
-                num = random.randint(0, num)
-                music += sound[num]
+    sound[0]=sound[0][:500]
+    sound[1]=sound[1][:500]
+    sound[2]=sound[2][:500]
+    sound[3]=sound[3][:500]
+    sound[4]=sound[4][:500]
+    base_music=base_music[:500]
+
+    base=base_music
+    music = sound[1].overlay(sound[2])+sound[3].overlay(sound[4])
+
+    for i in range(len(final_diff)):
+        base+=base_music
+    
+
+    for i in range(len(final_diff)):
+        music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
+        music += sound[final_diff[i][2]].overlay(sound[final_diff[i][3]])
+
+    music= music.overlay(base)
 
     music.export("./static/uploads/music.mp3", format="mp3")
-
+    
     return make_mv(vname)
 
 
