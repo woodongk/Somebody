@@ -10,6 +10,13 @@ def movie_divide(vname,n):
     dir = os.path.abspath("./static/uploads")
     fdir = os.path.join(dir, vname)
 
+    img_dir = "./static/uploads/images"
+    # image 폴더 있다면 삭제
+    if os.path.exists(img_dir) and os.path.isdir(img_dir):
+        shutil.rmtree(img_dir)
+    # image 폴더 생성
+    os.mkdir(img_dir)
+
     vidcap = cv2.VideoCapture(fdir)
     count = 0
 
@@ -24,14 +31,8 @@ def movie_divide(vname,n):
         success, image = vidcap.read()
         # count 값 업데이트 기준으로 frame 업데이트됨
         if success == True:
-            #print('Read %d frame: ' % count, success)
             if count % s_vidfps == 0:
-                # image 폴더 있다면 삭제
-                if os.path.exists("./static/uploads/images") and os.path.isdir("./static/uploads/images"):
-                    shutil.rmtree("./static/uploads/images")
-                # image 폴더 생성
-                os.mkdir("./static/uploads/images")
-                cv2.imwrite("./static/uploads/images/frame%d.jpg".format(int(count / s_vidfps)),image)  # save frame as JPEG file
+                cv2.imwrite(os.path.join(img_dir,"frame%d.jpg".format(int(count / s_vidfps))),image)  # save frame as JPEG file
             count += 1
         else:
             break
