@@ -6,6 +6,8 @@ from pydub import AudioSegment
 import random
 import subprocess
 
+import shutil
+
 app = Flask(__name__)
 
 ALLOWED_EXTENSIONS = set(['avi','mp4', 'wmv'])
@@ -197,7 +199,7 @@ def make_music(xdif, ydif, vname):
                 num = random.randint(0, num)
                 music += sound[num]
     
-    music.export("./static/uploads/music.mp3", format="mp3")
+    music.export("./static/uploads/final_output/music.mp3", format="mp3")
 
     return make_mv(vname)
 
@@ -214,8 +216,16 @@ def make_mv(vname):
         'ffmpeg -i %s -i %s -c:v copy -c:a aac -strict experimental %s' % (mdir, rmfdir, finaldir),
         shell=True
     )
+
+    # 모든 output 제거
+    shutil.rmtree("./static/uploads/images/") # 모든 이미지 제거
+    delete_file("./static/uploads/raw_video/")
+
     return render_template('app.html', up_file="final.mp4")
-    
+
+def delete_file(path):
+    for file in os.listdir(path):
+        os.remove(os.path.join(path,file))
 
 if __name__ == '__main__':
     app.run()
