@@ -62,7 +62,7 @@ def get_json(vname):
 
         if(rescode == 200):
             strTodict = json.loads(response.text)
-            with open("./static/uploads/json/test%d.json" % count, 'w', encoding='utf-8') as make_file:
+            with open("./static/uploads/json/test%02d.json" % count, 'w', encoding='utf-8') as make_file:
                 json.dump(strTodict, make_file, indent="\t")
             count += 1
         else:
@@ -113,7 +113,8 @@ key 'score' 'x' 'y'
 def change_cal(vname):
     print("METHOD : change_cal")
     jsondir = os.path.abspath("./static/uploads/json")
-    fname = os.listdir(jsondir)
+    fname = sorted(os.listdir(jsondir))
+    print(fname)
     fdir = list()
     for i in range(len(fname)):
         fdir.append(os.path.join(jsondir, fname[i]))
@@ -296,11 +297,6 @@ def make_music(diff, vname):
                 mel +=melody[cur][:340]
             
         choice=random.choice([True, False])
-
-
-
-        
-
 
     music= music.overlay(base)
     music = music.overlay(mel)
