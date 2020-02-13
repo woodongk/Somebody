@@ -45,7 +45,7 @@ def get_json(vname):
     print("METHOD : get_json")
     count = 1
     dir = os.path.abspath("./static/uploads/images")
-    fname = os.listdir(dir)
+    fname = sorted(os.listdir(dir))
     fdir = list()
 
     client_id = "ikkq6wbgvq" # API client 아이디랑 secret key
@@ -165,8 +165,6 @@ def change_cal(vname):
 
     for file in os.scandir(jsondir):
         os.remove(file.path)
-
-  
 
     return make_music(diff, vname)
 
