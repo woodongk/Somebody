@@ -168,55 +168,6 @@ def change_cal(vname):
 
     return make_music(diff, vname)
 
-"""
-# 변화량에 따른 사운드 제작
-def make_music(diff, vname):
-    print("METHOD : make_music")
-    
-    final_diff=list()
-    sound = list()
-    tmp_list=[0,1,2,3,4]
-
-    for k in range(len(diff[0])):
-        for i in range(len(tmp_list)-1):
-            for j in range(len(tmp_list)-i-1):
-                if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
-                    tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
-        final_diff.append(tmp_list)
-        tmp_list=[0,1,2,3,4]
-
-    sound = list()
-
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/tom H.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/kick.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
-    base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
-
-    for i in range(len(sound)):
-        sound[i]=sound[i][:500]
-
-    base_music=base_music[:500]
-
-    base=base_music
-    music = sound[1].overlay(sound[2])+sound[3].overlay(sound[4])
-
-    for i in range(len(final_diff)):
-        base+=base_music
-    
-
-    for i in range(len(final_diff)):
-        music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
-        music += sound[final_diff[i][2]].overlay(sound[final_diff[i][3]])
-
-    music= music.overlay(base)
-
-    music.export("./static/uploads/music.mp3", format="mp3")
-    
-    return make_mv(vname)
-"""
-
 def make_music(diff, vname):
     print("METHOD : make_music")
     
