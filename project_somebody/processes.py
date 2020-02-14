@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, flash
 from pydub import AudioSegment
 import os, cv2, requests, json, random, subprocess, shutil
 import numpy as np
@@ -136,6 +136,13 @@ def change_cal(vname):
     for i in fdir:
         with open(i, 'r') as f:
             data.append(json.load(f))
+
+    for i in range(len(data)):
+        if len(data[i]['predictions'])>1:
+            for file in os.scandir(jsondir):
+                os.remove(file.path)
+            flash('두 명 이상의 사람 detect','error')
+            return render_template("upload.html")
 
     diff = list() 
 
