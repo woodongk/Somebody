@@ -276,15 +276,21 @@ def active_body_stat(diff, threshold):
 
     body_dict = {
         0: '머리',
-        4: '오른쪽손',
-        7: '왼쪽손',
-        10: '오른쪽발',
+        1: '배',
+        3: '오른팔꿈치',
+        4: '오른팔',
+        6: '왼쪽팔꿈치',
+        7: '왼팔',
+        9: '오른쪽무릎',
+        10: '오른발',
+        12: '왼쪽무릎',
         13: '왼쪽발'
     }
 
-    for i, body in zip(range(5), body_dict.values()):
+    for i, body in zip(range(10), body_dict.values()):
         body_cnt_by_thres = len(np.where(np.array(diff[i]) > threshold)[0])
-        active_body_lst.append((body, body_cnt_by_thres))
+        print(body)
+        if body in ['머리', '오른팔', '왼팔', '오른발', '왼쪽발']:
+            active_body_lst.append((body, body_cnt_by_thres))
     print(active_body_lst)
-
     return active_body_lst
