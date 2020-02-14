@@ -44,11 +44,11 @@ def movie_divide(vname,n):
 def get_json(vname):
     print("METHOD : get_json")
 
-    json_dir = "./static/uploads/json"
-    if os.path.exists(json_dir) and os.path.isdir(json_dir):
-        shutil.rmtree(json_dir)
+    #json_dir = "./static/uploads/json"
+    #if os.path.exists(json_dir) and os.path.isdir(json_dir):
+    #    shutil.rmtree(json_dir)
     # image 폴더 생성
-    os.mkdir(json_dir)
+    #os.mkdir(json_dir)
 
     count = 1
     dir = os.path.abspath("./static/uploads/images")
@@ -141,7 +141,7 @@ def change_cal(vname):
 
     body_list = ['0','1','3','4','6','7','9','10','12','13']
 
-    for i in range(len(data) - 1):
+    for i in range(len(data)-1):
         body_diff = []
         for body in body_list:
             try:
@@ -149,15 +149,13 @@ def change_cal(vname):
                 d2 = data[i+1]['predictions'][0][body]
                 body_diff.append(abs_diff_dict(d1,d2))
                 
-            except KeyError:  # 한 쪽에 인식이 안 된 경우.
+            except KeyError:  # 신체 부위가 인식이 안 된 경우.
                 body_diff.append(0)
 
         diff.append(body_diff)
 
     for file in os.scandir(jsondir):
         os.remove(file.path)
-
-    print(np.array(diff).shape)
 
     return make_music(diff, vname)
 
@@ -167,7 +165,7 @@ def make_music(diff, vname):
     
     final_diff=list()
     sound = list()
-    tmp_list=[0,1,2,3,4,5,6,7,8]
+    tmp_list=[0,1,2,3,4,5,6,7,8,9]
 
     all_avg=0
     tmp_avg=0
@@ -177,27 +175,27 @@ def make_music(diff, vname):
 
 
     
-    for i in range(len(diff[0])):
-        for j in range(len(diff)):
-            tmp_avg+=diff[j][i]
+    for i in range(len(diff)): #40
+        for j in range(len(diff[0])): #10 
+            tmp_avg+=diff[i][j]
         avg.append(tmp_avg)
+        tmp_avg=0
 
-    print("avg : ",avg)
 
     for i in range(len(avg)):
         all_avg+=avg[i]
 
     all_avg/=len(avg)
 
-    print("all_avg = ", all_avg)
         
-    for k in range(len(diff[0])):
+    for k in range(len(diff)):
         for i in range(len(tmp_list)-1):
             for j in range(len(tmp_list)-i-1):
-                if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
+                if diff[k][tmp_list[j]]<diff[k][tmp_list[j+1]]:
                     tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
         final_diff.append(tmp_list)
-        tmp_list=[0,1,2,3,4,5,6,7,8]
+        tmp_list=[0,1,2,3,4,5,6,7,8,9]
+
 
     sound = list()
 
@@ -221,13 +219,19 @@ def make_music(diff, vname):
 
     base=base_music
     music = sound[1].overlay(sound[2])+sound[3].overlay(sound[4])
+    final_diff_len = 0
 
     for i in range(len(final_diff)):
+        final_diff_len+=len(final_diff[i])
+        
+    print("final 길이 : ", final_diff_len)
+
+    for i in range(final_diff_len):
         base+=base_music
 
     for i in range(len(final_diff)):
-        music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
-        music += sound[final_diff[i][2]].overlay(sound[final_diff[i][3]])
+            music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
+            music += (sound[final_diff[i][2]].overlay(sound[final_diff[i][3]]))-12
 
     mel_dir = os.path.abspath("./static/uploads/music_source/blues_scale")
     melody_l = os.listdir(mel_dir)
@@ -247,10 +251,11 @@ def make_music(diff, vname):
     
     mel = melody[6]
     cur = 6
+    cre = 0
 
     ch_rhythm=0
 
-    for i in range(len(avg)):
+    for i in range(len(avg)-1):
         ch_rhythm=random.randint(0, len(rhythm)-1)
         for i in range(len(rhythm[ch_rhythm])):
             if(avg[i]<all_avg):
@@ -258,12 +263,14 @@ def make_music(diff, vname):
                 #if(cur==0):
                 #    cur = random.randint(0, cur+6)
                 if(cur==0):
+                    cre +=1
                     avg[i]=all_avg+1
                     cur+=1
-                    mel+= melody[cur][:rhythm[ch_rhythm][i]]  
+                    mel+= (melody[cur][:rhythm[ch_rhythm][i]])+cre
                 else:
+                    cre -=1
                     cur-=1
-                    mel += melody[cur][:rhythm[ch_rhythm][i]]
+                    mel += (melody[cur][:rhythm[ch_rhythm][i]])+cre
                 #cur = random.randint(0, cur)
                 #if(cur==0):
                 #    cur = random.randint(0, cur+6)
@@ -273,18 +280,20 @@ def make_music(diff, vname):
                 #if(cur==len(melody)-1):
                 #    cur = random.randint(cur-6, len(melody)-1)
                 if(cur==len(melody)-1):
+                    cre-=1
                     avg[i]=all_avg-1
                     cur-=1
-                    mel +=melody[cur][:rhythm[ch_rhythm][i]]
+                    mel += (melody[cur][:rhythm[ch_rhythm][i]])+cre
                 else:
+                    cre+=1
                     cur+=1
-                    mel +=melody[cur][:rhythm[ch_rhythm][i]]
+                    mel += (melody[cur][:rhythm[ch_rhythm][i]])+cre
                 #cur = random.randint(cur, len(melody)-1)
                 #if(cur==len(melody)-1):
                 #    cur = random.randint(cur-6, len(melody)-1)
                 #mel +=melody[cur][:rhythm[ch_rhythm][i]]
 
-    
+    mel += melody[6]
 
     music= music.overlay(base)
     music = music.overlay(mel)
