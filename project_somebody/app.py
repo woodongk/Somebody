@@ -14,11 +14,13 @@ def allowed_file(fname):  # 업로드 파일 형식 지정
            fname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# 첫 화면(동영상 업로드)
 @app.route('/')
 def up():
     return render_template('upload.html')
 
 
+# 제출 버튼 누를 시 작동(동영상 처리 작업)
 @app.route('/uploader', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':

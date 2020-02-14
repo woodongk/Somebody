@@ -4,6 +4,7 @@ import os, cv2, requests, json, random, subprocess, shutil
 import numpy as np
 from collections import Counter
 
+
 # 영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
 # 1초에 1번, n= 2 : 1초에 2번캡처
 def movie_divide(vname,n):
@@ -40,15 +41,10 @@ def movie_divide(vname,n):
 
     return get_json(vname)
 
+
 # API 요청해 json 파일 받기
 def get_json(vname):
     print("METHOD : get_json")
-
-    #json_dir = "./static/uploads/json"
-    #if os.path.exists(json_dir) and os.path.isdir(json_dir):
-    #    shutil.rmtree(json_dir)
-    # image 폴더 생성
-    #os.mkdir(json_dir)
 
     count = 1
     dir = os.path.abspath("./static/uploads/images")
@@ -57,8 +53,9 @@ def get_json(vname):
 
     client_id = "ikkq6wbgvq" # API client 아이디랑 secret key
     client_secret = "DzLfqBH0jvOALQT536QR2eEsrvGxwxlbxY21IKlE"
-    url = "https://naveropenapi.apigw.ntruss.com/vision-pose/v1/estimate" # 사람 인식
+    url = "https://naveropenapi.apigw.ntruss.com/vision-pose/v1/estimate"
 
+    # 영상 속 인물에 대한 pose estimation api 이용
     for i in fname:
         fdir.append(os.path.join(dir, i))
     for i in fdir:
@@ -78,43 +75,7 @@ def get_json(vname):
 
     return change_cal(vname)
 
-"""
-json_data['predictions'][0]['0']['x'] --> dict key = score, x, y
-구성
-key predictions
-list
-key '0' '1' ... '17' 해당 신체 부위 key
-key 'score' 'x' 'y'
-최종 산출 : float score, x, y에 해당하는 값
-"""
-"""
-신체 부위 키 값
-0 코
-1 목
-2 오른쪽 어깨
-3 오른쪽 팔꿈치
-4 오른쪽 손목
-5 왼쪽 어깨
-6 왼쪽 팔꿈치
-7 왼쪽 손목
-8 오른쪽 엉덩이
-9 오른쪽 무릎
-10 오른쪽 발목
-11 왼쪽 엉덩이
-12 왼쪽 무릎
-13 왼쪽 발목
-14 오른쪽 눈
-15 왼쪽 눈
-16 오른쪽 귀
-17 왼쪽 귀
-"""
-"""
-#ISSUE
-- 만약 부위가 인식이 안된 경우는 어떻게 처리할 것인가?
-- 변화량이 급격히 변할 경우는? 즉, 인식이 잘못되었을 경우는 어떻게 보간할 것인가?
-- 음악 구성을 어떤 식으로 할 것인가에 대한 명확한 기준을 세워야할 듯함.
-변화량을 이용한다는 것이 음악을 구성한다는 것에 있어 어떠한 메리트를 지니고 있는가...
-"""
+
 def abs_diff_dict(d1,d2):
     d1 = Counter(d1)
     d2 = Counter(d2)
@@ -123,6 +84,7 @@ def abs_diff_dict(d1,d2):
     d2 = dict(d2)
     
     return np.abs(d2['x']) + np.abs(d2['y'])
+
 
 # 좌표 변화량 산출
 def change_cal(vname):
@@ -249,24 +211,16 @@ def make_music(diff, vname):
 
     for i in range(len(melody_lst)):
         melody.append(AudioSegment.from_mp3(melody_lst[i])-4)
-
-
-    #for i in range(len(melody)): #멜로디는 0.5초
-    #    melody[i]=melody[i][:500]
     
     mel = melody[6]
     cur = 6
     cre = 0
 
-    ch_rhythm=0
 
     for i in range(len(avg)-1):
         ch_rhythm=random.randint(0, len(rhythm)-1)
         for i in range(len(rhythm[ch_rhythm])):
             if(avg[i]<all_avg):
-                #cur = random.randint(0, cur)
-                #if(cur==0):
-                #    cur = random.randint(0, cur+6)
                 if(cur==0):
                     cre +=1
                     avg[i]=all_avg+1
@@ -276,14 +230,7 @@ def make_music(diff, vname):
                     cre -=1
                     cur-=1
                     mel += (melody[cur][:rhythm[ch_rhythm][i]])+cre
-                #cur = random.randint(0, cur)
-                #if(cur==0):
-                #    cur = random.randint(0, cur+6)
-                #mel += melody[cur][:rhythm[ch_rhythm][i]]
             else:
-                #cur = random.randint(cur, len(melody)-1)
-                #if(cur==len(melody)-1):
-                #    cur = random.randint(cur-6, len(melody)-1)
                 if(cur==len(melody)-1):
                     cre-=1
                     avg[i]=all_avg-1
@@ -293,10 +240,6 @@ def make_music(diff, vname):
                     cre+=1
                     cur+=1
                     mel += (melody[cur][:rhythm[ch_rhythm][i]])+cre
-                #cur = random.randint(cur, len(melody)-1)
-                #if(cur==len(melody)-1):
-                #    cur = random.randint(cur-6, len(melody)-1)
-                #mel +=melody[cur][:rhythm[ch_rhythm][i]]
 
     mel += melody[6]
 
@@ -306,6 +249,7 @@ def make_music(diff, vname):
     music.export("./static/uploads/music.mp3", format="mp3")
     
     return make_mv(vname, diff)
+
 
 # 원본 동영상과 제작한 사운드 결합
 def make_mv(vname, diff):
@@ -324,7 +268,8 @@ def make_mv(vname, diff):
     )
     return render_template('app.html', up_file="final.mp4", soundlog=active_body_stat(diff, 0.1))
 
-# change_cal 통해 만들어진 변화량 통해 사운드 로그 생
+
+# change_cal 통해 만들어진 변화량 통해 사운드 로그 생성
 def active_body_stat(diff, threshold):
     active_body_lst = []
     cnt = 0
