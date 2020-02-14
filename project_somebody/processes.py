@@ -316,11 +316,11 @@ def active_body_stat(diff, threshold):
     cnt = 0
 
     body_dict = {
-        0: 'head',
-        4: 'rhand',
-        7: 'lhand',
-        10: 'rfoot',
-        13: 'lfoot'
+        0: '머리',
+        4: '오른쪽손',
+        7: '왼쪽손',
+        10: '오른쪽발',
+        13: '왼쪽발'
     }
 
     for i, body in zip(range(5), body_dict.values()):
