@@ -1310,8 +1310,8 @@ a:not([href]):not([tabindex]), a:not([href]):not([tabindex]):focus, a:not([href]
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin-top: 2.8rem;
-  margin-bottom: 2.8rem; }
+  margin-top: 0 rem;
+  margin-bottom: 2.8zrem; }
   .divider-new > h1, .divider-new h2, .divider-new h3, .divider-new h4, .divider-new h5, .divider-new h6 {
     margin-bottom: 0; }
   .divider-new:before, .divider-new:after {
