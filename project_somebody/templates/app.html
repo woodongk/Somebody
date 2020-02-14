@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
 {% block main %}
+    <style>
+    video{
+        position: relative;
+        width: 100%;
+        top: 0;
+        height: auto;
+    }
+    </style>
 
       <!--Section: Cards-->
       <section class="text-left padding-t">
@@ -15,8 +23,10 @@
 
               <!--Card image-->
               <div class="view overlay">
-                <div class="embed-responsive embed-responsive-16by9 rounded-top">
-                  <iframe class="iframe100" src="{{ url_for('static', filename="uploads/"+up_file) }}" allowfullscreen></iframe>
+                <div class="embed-responsive-16by9 rounded-top">
+                    <video width="720" height="480" controls>
+                        <source src="{{ url_for('static', filename="uploads/"+up_file) }}" type="video/mp4">
+                    </video>
                 </div>
               </div>
 
