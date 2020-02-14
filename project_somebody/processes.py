@@ -293,4 +293,5 @@ def active_body_stat(diff, threshold):
         if body in ['머리', '오른팔', '왼팔', '오른발', '왼쪽발']:
             active_body_lst.append((body, body_cnt_by_thres))
     print(active_body_lst)
+    print(diff)
     return active_body_lst
