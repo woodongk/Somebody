@@ -43,16 +43,16 @@
               <div>
                 <!--Title-->
                   <div class="border-bottom">
-                      <h2 class="card-title padding-l font-weight-bold">사운드로그</h2>
+                      <h3 class="card-title padding-l font-weight-bold">사운드로그</h3>
                   </div>
                   <div class="padding-t">
-                      <h3 class="card-title padding-l">평가</h3>
-                      <h4 class="card-body padding-l">파워풀한 댄서!</h4>
+                      <h4 class="card-title padding-l">평가</h4>
+                      <h5 class="card-body padding-l">파워풀한 댄서!</h5>
                   </div>
                   <div class="padding-t">
-                      <h3 class="card-title padding-l">활동적인 신체부위</h3>
+                      <h4 class="card-title padding-l" style="padding-bottom: 20px">활동적인 신체부위</h4>
                       {% for i in soundlog %}
-                          <h4 class="padding-l">{{ i[0] + " : %d" % i[1] }}</h4>
+                          <h5 class="padding-l">{{ i[0] + " : %d" % i[1] }}</h5>
                       {% endfor %}
                   </div>
               </div>

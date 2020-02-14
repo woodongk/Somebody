@@ -2,6 +2,7 @@ from flask import render_template
 from pydub import AudioSegment
 import os, cv2, requests, json, random, subprocess, shutil
 import numpy as np
+from collections import Counter
 
 # 영상 -> 사진 분할. 매개변수로는 영상 제목 넘겨줌.
 # 1초에 1번, n= 2 : 1초에 2번캡처
@@ -114,7 +115,14 @@ key 'score' 'x' 'y'
 - 음악 구성을 어떤 식으로 할 것인가에 대한 명확한 기준을 세워야할 듯함.
 변화량을 이용한다는 것이 음악을 구성한다는 것에 있어 어떠한 메리트를 지니고 있는가...
 """
-
+def abs_diff_dict(d1,d2):
+    d1 = Counter(d1)
+    d2 = Counter(d2)
+    
+    d2.subtract(d1)
+    d2 = dict(d2)
+    
+    return np.abs(d2['x']) + np.abs(d2['y'])
 
 # 좌표 변화량 산출
 def change_cal(vname):
@@ -129,61 +137,44 @@ def change_cal(vname):
         with open(i, 'r') as f:
             data.append(json.load(f))
 
-    head_diff = list()
-    rhand_diff = list()
-    lhand_diff = list()
-    rfoot_diff = list()
-    lfoot_diff = list()
-    diff = list()
+    diff = list() 
+
+    body_list = ['0','1','3','4','6','7','9','10','12','13']
 
     for i in range(len(data) - 1):
-        try:
-            head_diff.append(abs(data[i + 1]['predictions'][0]['0']['x'] - data[i]['predictions'][0]['0']['x']) + abs(data[i + 1]['predictions'][0]['0']['y'] - data[i]['predictions'][0]['0']['y']))
-        except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            head_diff.append(0)
-    for i in range(len(data) - 1):
-        try:
-            rhand_diff.append(abs(data[i + 1]['predictions'][0]['4']['x'] - data[i]['predictions'][0]['4']['x']) + abs(data[i + 1]['predictions'][0]['4']['y'] - data[i]['predictions'][0]['4']['y']))
-        except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            rhand_diff.append(0)
-    for i in range(len(data) - 1):
-        try:
-            lhand_diff.append(abs(data[i + 1]['predictions'][0]['7']['x'] - data[i]['predictions'][0]['7']['x']) + abs(data[i + 1]['predictions'][0]['7']['y'] - data[i]['predictions'][0]['7']['y']))
-        except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            lhand_diff.append(0)
-    for i in range(len(data) - 1):
-        try:
-            rfoot_diff.append(abs(data[i + 1]['predictions'][0]['10']['x'] - data[i]['predictions'][0]['10']['x']) + abs(data[i + 1]['predictions'][0]['10']['y'] - data[i]['predictions'][0]['10']['y']))
-        except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            rfoot_diff.append(0)
-    for i in range(len(data) - 1):
-        try:
-            lfoot_diff.append(abs(data[i + 1]['predictions'][0]['13']['x'] - data[i]['predictions'][0]['13']['x']) + abs(data[i + 1]['predictions'][0]['13']['y'] - data[i]['predictions'][0]['13']['y']))
-        except KeyError:  # 한 쪽에 인식이 안 된 경우.
-            lfoot_diff.append(0)
-    
-    diff.append(head_diff)
-    diff.append(rhand_diff)
-    diff.append(lhand_diff)
-    diff.append(rfoot_diff)
-    diff.append(lfoot_diff)
+        body_diff = []
+        for body in body_list:
+            try:
+                d1 = data[i]['predictions'][0][body]
+                d2 = data[i+1]['predictions'][0][body]
+                body_diff.append(abs_diff_dict(d1,d2))
+                
+            except KeyError:  # 한 쪽에 인식이 안 된 경우.
+                body_diff.append(0)
+
+        diff.append(body_diff)
 
     for file in os.scandir(jsondir):
         os.remove(file.path)
 
+    print(np.array(diff).shape)
+
     return make_music(diff, vname)
 
-"""
+
 def make_music(diff, vname):
     print("METHOD : make_music")
     
     final_diff=list()
     sound = list()
-    tmp_list=[0,1,2,3,4]
+    tmp_list=[0,1,2,3,4,5,6,7,8]
 
     all_avg=0
     tmp_avg=0
     avg=list()
+
+    rhythm = [[1000],[500,500],[400,200,400],[300,300,400]]
+
 
     
     for i in range(len(diff[0])):
@@ -191,10 +182,14 @@ def make_music(diff, vname):
             tmp_avg+=diff[j][i]
         avg.append(tmp_avg)
 
+    print("avg : ",avg)
+
     for i in range(len(avg)):
         all_avg+=avg[i]
 
     all_avg/=len(avg)
+
+    print("all_avg = ", all_avg)
         
     for k in range(len(diff[0])):
         for i in range(len(tmp_list)-1):
@@ -202,16 +197,21 @@ def make_music(diff, vname):
                 if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
                     tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
         final_diff.append(tmp_list)
-        tmp_list=[0,1,2,3,4]
+        tmp_list=[0,1,2,3,4,5,6,7,8]
 
     sound = list()
 
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3")-6)
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3")-6)
     sound.append(AudioSegment.from_mp3("./static/uploads/music_source/tom H.mp3"))
     sound.append(AudioSegment.from_mp3("./static/uploads/music_source/kick.mp3"))
     sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
-    base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/bongo H.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/clap.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/cow bell.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/maracas.mp3"))
+    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/ride.mp3"))
+    base_music = AudioSegment.from_mp3("./static/uploads/music_source/rim.mp3")
 
     for i in range(len(sound)):
         sound[i] = sound[i][:500]
@@ -239,147 +239,7 @@ def make_music(diff, vname):
     melody=list()
 
     for i in range(len(melody_lst)):
-        melody.append(AudioSegment.from_mp3(melody_lst[i]))
-
-
-    for i in range(len(melody)): #멜로디는 0.5초
-        melody[i]=melody[i][:500]
-    
-    mel = melody[6]
-    cur = 6
-    choice=True
-
-    print("avg",avg)
-    print("all_avg",all_avg)
-
-    for i in range(len(avg)):
-        if(choice == True):
-            if(avg[i]<all_avg):
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur]
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur]
-            else:
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur]
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur]
-
-        else:
-            if(avg[i]<all_avg):
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur][:330]
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur][:330]
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur][:340]
-            else:
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur][:330]
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur][:330]
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur][:340]
-            
-        choice=random.choice([True, False])
-
-    music= music.overlay(base)
-    music = music.overlay(mel)
-
-    music.export("./static/uploads/music.mp3", format="mp3")
-    
-    return make_mv(vname)
-    """
-
-def make_music(diff, vname):
-    print("METHOD : make_music")
-    
-    final_diff=list()
-    sound = list()
-    tmp_list=[0,1,2,3,4]
-
-    all_avg=0
-    tmp_avg=0
-    avg=list()
-
-    rhythm = [[300,700],[300,300,400],[500,500],[400,200,400]]
-
-
-    
-    for i in range(len(diff[0])):
-        for j in range(len(diff)):
-            tmp_avg+=diff[j][i]
-        avg.append(tmp_avg)
-
-    for i in range(len(avg)):
-        all_avg+=avg[i]
-
-    all_avg/=len(avg)
-        
-    for k in range(len(diff[0])):
-        for i in range(len(tmp_list)-1):
-            for j in range(len(tmp_list)-i-1):
-                if diff[tmp_list[j]][k]<diff[tmp_list[j+1]][k]:
-                    tmp_list[j],tmp_list[j+1]=tmp_list[j+1], tmp_list[j]
-        final_diff.append(tmp_list)
-        tmp_list=[0,1,2,3,4]
-
-    sound = list()
-
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/crash.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/hat.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/tom H.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/kick.mp3"))
-    sound.append(AudioSegment.from_mp3("./static/uploads/music_source/snare.mp3"))
-    base_music = AudioSegment.from_mp3("./static/uploads/music_source/base.mp3")
-
-    for i in range(len(sound)):
-        sound[i] = sound[i][:500]
-
-
-    base_music=base_music[:500] #base
-
-    base=base_music
-    music = sound[1].overlay(sound[2])+sound[3].overlay(sound[4])
-
-    for i in range(len(final_diff)):
-        base+=base_music
-
-    for i in range(len(final_diff)):
-        music += sound[final_diff[i][0]].overlay(sound[final_diff[i][1]])
-        music += sound[final_diff[i][2]].overlay(sound[final_diff[i][3]])
-
-    mel_dir = os.path.abspath("./static/uploads/music_source/blues_scale")
-    melody_l = os.listdir(mel_dir)
-    melody_lst=list()
-
-    for i in range(len(melody_l)):
-        melody_lst.append(os.path.join(mel_dir, melody_l[i]))
-
-    melody=list()
-
-    for i in range(len(melody_lst)):
-        melody.append(AudioSegment.from_mp3(melody_lst[i]))
+        melody.append(AudioSegment.from_mp3(melody_lst[i])-4)
 
 
     #for i in range(len(melody)): #멜로디는 0.5초
@@ -394,23 +254,35 @@ def make_music(diff, vname):
         ch_rhythm=random.randint(0, len(rhythm)-1)
         for i in range(len(rhythm[ch_rhythm])):
             if(avg[i]<all_avg):
-                cur = random.randint(0, cur)
+                #cur = random.randint(0, cur)
+                #if(cur==0):
+                #    cur = random.randint(0, cur+6)
                 if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur][:rhythm[ch_rhythm][i]]
-                cur = random.randint(0, cur)
-                if(cur==0):
-                    cur = random.randint(0, cur+6)
-                mel += melody[cur][:rhythm[ch_rhythm][i]]
+                    avg[i]=all_avg+1
+                    cur+=1
+                    mel+= melody[cur][:rhythm[ch_rhythm][i]]  
+                else:
+                    cur-=1
+                    mel += melody[cur][:rhythm[ch_rhythm][i]]
+                #cur = random.randint(0, cur)
+                #if(cur==0):
+                #    cur = random.randint(0, cur+6)
+                #mel += melody[cur][:rhythm[ch_rhythm][i]]
             else:
-                cur = random.randint(cur, len(melody)-1)
+                #cur = random.randint(cur, len(melody)-1)
+                #if(cur==len(melody)-1):
+                #    cur = random.randint(cur-6, len(melody)-1)
                 if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur][:rhythm[ch_rhythm][i]]
-                cur = random.randint(cur, len(melody)-1)
-                if(cur==len(melody)-1):
-                    cur = random.randint(cur-6, len(melody)-1)
-                mel +=melody[cur][:rhythm[ch_rhythm][i]]
+                    avg[i]=all_avg-1
+                    cur-=1
+                    mel +=melody[cur][:rhythm[ch_rhythm][i]]
+                else:
+                    cur+=1
+                    mel +=melody[cur][:rhythm[ch_rhythm][i]]
+                #cur = random.randint(cur, len(melody)-1)
+                #if(cur==len(melody)-1):
+                #    cur = random.randint(cur-6, len(melody)-1)
+                #mel +=melody[cur][:rhythm[ch_rhythm][i]]
 
     
 
