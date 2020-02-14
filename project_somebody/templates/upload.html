@@ -3,9 +3,10 @@
 {% block upload %}
 
 
-    <section class="text-center" style="margin-top: 15%">
+    <section class="text-center" style="margin-top: 5%">
 
         <div class="align-content-center padding-l padding-t">
+            <img id="loadingimage" src="{{url_for('static', filename='img/spinner.gif')}}" alt="loading..." style="display: none">
             <div class="card-body">
                 <h3 id="requesttext" class="card-title" style="margin-bottom: 20px">동영상을 올려주세요</h3>
                 <div class="embed-responsive rounded-top text-padding">
@@ -14,7 +15,6 @@
                         <input type = "file" name = "file" />
                         <input type = "submit" onclick="ButtonClicked()"/>
                     </form>
-                    <img id="loadingimage" src="{{url_for('static', filename='img/spinner.gif')}}" alt="loading..." style="display: none">
                 </div>
             </div>
         </div>
