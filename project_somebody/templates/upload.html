@@ -3,22 +3,32 @@
 {% block upload %}
 
 
-    <section class="text-left">
+    <section class="text-center" style="margin-top: 15%">
 
         <div class="align-content-center padding-l padding-t">
             <div class="card-body">
-                <h3 class="card-title">동영상을 올려주세요</h3>
+                <h3 id="requesttext" class="card-title" style="margin-bottom: 20px">동영상을 올려주세요</h3>
                 <div class="embed-responsive rounded-top text-padding">
-                    <form action = "http://localhost:5000/uploader" method = "POST"
+                    <form id="uploadform" action = "http://localhost:5000/uploader" method = "POST"
                           enctype = "multipart/form-data">
                         <input type = "file" name = "file" />
-                        <input type = "submit"/>
+                        <input type = "submit" onclick="ButtonClicked()"/>
                     </form>
+                    <img id="loadingimage" src="{{url_for('static', filename='img/spinner.gif')}}" alt="loading..." style="display: none">
                 </div>
             </div>
         </div>
 
       </section>
+
+<script type="text/javascript">
+    function ButtonClicked() {
+        document.getElementById("uploadform").style.display = "none"; // to undisplay
+        document.getElementById("requesttext").style.display = "none"; // to undisplay
+        document.getElementById("loadingimage").style.display = ""; // to display
+        return true;
+    }
+</script>
       <!--Section: Cards-->
 
 {% endblock upload %}
