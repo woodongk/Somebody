@@ -174,8 +174,6 @@ def make_music(diff, vname):
     avg=list()
 
     rhythm = [[1000],[500,500],[400,200,400],[300,300,400]]
-
-
     
     for i in range(len(diff[0])):
         for j in range(len(diff)):
