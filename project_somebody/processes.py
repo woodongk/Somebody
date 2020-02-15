@@ -99,13 +99,6 @@ def change_cal(vname):
         with open(i, 'r') as f:
             data.append(json.load(f))
 
-    for i in range(len(data)):
-        if len(data[i]['predictions'])>1:
-            for file in os.scandir(jsondir):
-                os.remove(file.path)
-            flash('두 명 이상의 사람 detect','error')
-            return render_template("upload.html")
-
     diff = list() 
 
     body_list = ['0','1','3','4','6','7','9','10','12','13']
