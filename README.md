@@ -11,7 +11,7 @@ NAVER AI_Burning_Day 2020 **본선 진출작**
 ### 누구나의 그 어떠한 몸짓도 음악이 된다!
 사용자의 몸 동작을 **Pose Estimation API**를 이용해 좌표로 환산하여 음악으로 만들어주는 서비스 
 
-<h1 align="center"><img src="" style="width: 80%;"></h1>
+<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/imgs/summary.png"></h1>
     
 ### Description
 **구현 기능 1. 음악 생성**  
