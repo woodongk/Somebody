@@ -15,8 +15,6 @@ NAVER AI_Burning_Day 2020 **본선 진출작**
     
 ### Description
 **구현 기능 1. 음악 생성**  
-<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/2.Flow.png"></h1>
-
 - 사전에 신체 부위 별로 음악 할당  
 	-	Beat  
 		   - 0 : 머리 - crash  
@@ -38,12 +36,13 @@ NAVER AI_Burning_Day 2020 **본선 진출작**
 - 생성된 음원과 원래의 비디오가 합쳐져 새로운 뮤직비디오로 재탄생    
 - 업로드한 비디오에서 원래 있던 오디오를 삭제. 무성의 비디오로 추출  
 - 생성된 음원과 앞서 음원을 추출한 무성의 비디오가 합쳐져 새로운 뮤직비디오로 재탄생  
+
+<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/2.Flow.png"></h1>
+
   
 **구현 기능 2. 사운드 로그 생성**  
-<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/3.Final.png"></h1>
-
 - 사용자의 몸짓 변화량이 활발한 (크게 변화한) 부위를 셈하여 분석 제공  
    - 변화량이 활발할 것 같은 5개의 신체부위에 대한 analysis summary  
 - 사용자의 몸짓 변화량의 총량에 따른 분류  
-
  
+<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/3.Final.png"></h1>
