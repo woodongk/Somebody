@@ -37,7 +37,7 @@ NAVER AI_Burning_Day 2020 **본선 진출작**
 - 업로드한 비디오에서 원래 있던 오디오를 삭제. 무성의 비디오로 추출  
 - 생성된 음원과 앞서 음원을 추출한 무성의 비디오가 합쳐져 새로운 뮤직비디오로 재탄생  
 
-<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/2.Flow.png" width="70%" height="70%"></h1>
+<h1 align="center"><img src="https://github.com/woodongk/Somebody/blob/master/resources/2.flow.png" width="70%" height="70%"></h1>
 
   
 **구현 기능 2. 사운드 로그 생성**  
